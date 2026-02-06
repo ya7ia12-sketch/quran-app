@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المصحف الإلكتروني</title>
+    <meta name="description" content="المصحف الإلكتروني - تطبيق قراءة القرآن الكريم مع التفسير والبحث">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Main Quran Page View -->
+        <main class="quran-page-container" id="page-container">
+            <div class="quran-page-frame" id="quran-frame">
+                <!-- Header (Dynamic) -->
+                <div class="page-header ui-element">
+                    <div class="header-box right" id="surah-name">جاري التحميل...</div>
+                    <div class="header-box left" id="juz-info">---</div>
+                </div>
+
+                <div class="quran-page-content">
+                    <div class="loading-indicator" id="loader">
+                        <div class="spinner"></div>
+                        <p>جاري تحميل الصفحة...</p>
+                    </div>
+                    <div class="verses-container" id="verses-content"></div>
+                </div>
+
+                <div class="page-footer ui-element">
+                    <div class="page-number-shape" id="page-number">-</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation Buttons -->
+        <button class="nav-btn prev ui-element" id="prev-page" aria-label="الصفحة السابقة">‹</button>
+        <button class="nav-btn next ui-element" id="next-page" aria-label="الصفحة التالية">›</button>
+
+        <!-- Bottom Floating Controls -->
+        <div class="floating-controls ui-element" id="controls">
+            <button class="float-btn" id="play-btn" title="تشغيل/إيقاف">▶</button>
+            <button class="float-btn" id="reciter-btn" title="القارئ">🎙️</button>
+            <button class="float-btn" id="search-btn" title="بحث">🔍</button>
+            <button class="float-btn" id="nav-menu-btn" title="التنقل">☰</button>
+            <button class="float-btn" id="dark-mode-btn" title="الوضع الليلي">🌙</button>
+            <button class="float-btn" id="quran-settings-btn" title="الإعدادات">⚙️</button>
+            <button class="float-btn" id="bookmark-btn" title="حفظ">🔖</button>
+            <button class="float-btn" id="tafsir-btn" title="التفسير">📖</button>
+        </div>
+
+        <!-- Reciter Selection Menu -->
+        <div id="reciter-menu" class="reciter-menu hidden">
+            <div class="reciter-menu-header">اختر القارئ</div>
+            <button class="reciter-item" data-reciter="Alafasy_128kbps">مشاري العفاسي</button>
+            <button class="reciter-item" data-reciter="Abdurrahmaan_As-Sudais_192kbps">عبدالرحمن السديس</button>
+            <button class="reciter-item" data-reciter="Husary_128kbps">محمود خليل الحصري</button>
+            <button class="reciter-item" data-reciter="Ali_Jaber_64kbps">علي جابر</button>
+            <button class="reciter-item" data-reciter="Saood_ash-Shuraym_128kbps">سعود الشريم</button>
+        </div>
+
+        <!-- Verse Action Menu (Share/Copy) -->
+        <div id="verse-menu" class="verse-menu hidden">
+            <button class="verse-menu-btn" id="copy-verse-btn">📋 نسخ</button>
+            <button class="verse-menu-btn" id="share-verse-btn">📤 مشاركة</button>
+        </div>
+
+        <!-- Tafsir Panel -->
+        <div id="tafsir-panel" class="side-panel hidden">
+            <div class="panel-overlay" onclick="toggleTafsir(false)"></div>
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h2>التفسير الميسر</h2>
+                    <button class="close-btn" onclick="toggleTafsir(false)">&times;</button>
+                </div>
+                <div class="panel-body">
+                    <p class="verse-reference" id="tafsir-ref"><strong>اضغط على آية</strong></p>
+                    <p class="tafsir-text" id="tafsir-content">...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-panel" class="side-panel hidden">
+            <div class="panel-overlay" onclick="toggleSettings(false)"></div>
+            <div class="panel-card small">
+                <div class="panel-header">
+                    <h2>الإعدادات</h2>
+                    <button class="close-btn" onclick="toggleSettings(false)">&times;</button>
+                </div>
+                <div class="panel-body">
+                    <div class="setting-item">
+                        <label>حجم الخط</label>
+                        <input type="range" id="font-size-slider" min="16" max="32" value="24" step="1">
+                    </div>
+                    <div class="setting-item">
+                        <label>الانتقال لصفحة</label>
+                        <div class="page-jump">
+                            <input type="number" id="page-jump-input" min="1" max="604" value="1"
+                                placeholder="رقم الصفحة">
+                            <button id="page-jump-btn">انتقل</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Panel -->
+        <div id="search-panel" class="side-panel hidden">
+            <div class="panel-overlay" onclick="toggleSearchPanel(false)"></div>
+            <div class="panel-card nav-card">
+                <div class="panel-header">
+                    <h2>البحث في القرآن</h2>
+                    <button class="close-btn" onclick="toggleSearchPanel(false)">&times;</button>
+                </div>
+                <div class="panel-body search-panel-body">
+                    <div class="search-input-container">
+                        <input type="text" id="search-input" placeholder="ابحث في القرآن الكريم..." autocomplete="off">
+                        <button id="search-submit-btn">بحث</button>
+                    </div>
+                    <div class="search-results" id="search-results">
+                        <p class="search-placeholder">أدخل كلمة أو جملة للبحث</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Modal -->
+        <div id="nav-panel" class="side-panel hidden">
+            <div class="panel-overlay" onclick="toggleNavPanel(false)"></div>
+            <div class="panel-card nav-card">
+                <div class="panel-header">
+                    <h2>التنقل</h2>
+                    <button class="close-btn" onclick="toggleNavPanel(false)">&times;</button>
+                </div>
+                <!-- Tabs -->
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-tab="surah">السور</button>
+                    <button class="nav-tab" data-tab="juz">الأجزاء</button>
+                    <button class="nav-tab" data-tab="hizb">الأحزاب</button>
+                </div>
+                <!-- Tab Content -->
+                <div class="nav-tab-content">
+                    <div class="nav-list" id="surah-list"></div>
+                    <div class="nav-list hidden" id="juz-list"></div>
+                    <div class="nav-list hidden" id="hizb-list"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
